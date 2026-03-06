@@ -1,0 +1,66 @@
+services:
+     server:
+          build: .
+          container_name: urft_server
+          hostname: server
+          networks:
+               urft_network:
+                    ipv4_address: 172.25.0.10
+          cap_add:
+             - NET_ADMIN
+          command: python /app/src/urft_server.py 0.0.0.0 12345
+          volumes:
+             - ./src:/app/src
+             - ./config.json:/app/config.json
+             - ./recived:/app/recived
+             - ./test:/app/test
+             - .:/app/workspace
+          stdin_open: true
+          tty: true
+
+     client:
+          build: .
+          container_name: urft_client
+          hostname: client
+          networks:
+               urft_network:
+                    ipv4_address: 172.25.0.20
+          cap_add:
+             - NET_ADMIN
+          depends_on:
+             - server
+          volumes:
+             - ./src:/app/src
+             - ./config.json:/app/config.json
+             - ./recived:/app/recived
+             - ./test:/app/test
+             - .:/app/workspace
+          stdin_open: true
+          tty: true
+          command: sleep infinity
+
+     test:
+          build: .
+          networks:
+               urft_network:
+                    ipv4_address: 172.25.0.30
+          cap_add:
+             - NET_ADMIN
+          depends_on:
+             - server
+          volumes:
+             - ./src:/app/src
+             - ./config.json:/app/config.json
+             - ./recived:/app/recived
+             - ./test:/app/test
+             - .:/app/workspace
+          stdin_open: true
+          tty: true
+          command: sleep infinity
+
+networks:
+     urft_network:
+          driver: bridge
+          ipam:
+               config:
+                  - subnet: 172.25.0.0/16

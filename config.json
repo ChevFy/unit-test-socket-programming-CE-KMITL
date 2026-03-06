@@ -1,0 +1,189 @@
+{
+	"server": {
+		"host": "0.0.0.0",
+		"port": 12345
+	},
+	"docker": {
+		"server_ip": "172.25.0.10",
+		"client_ip": "172.25.0.20",
+		"test_ip": "172.25.0.30"
+	},
+	"tests": [
+		{
+			"id": 1,
+			"name": "Normal conditions with 10ms RTT",
+			"file_size_mb": 1,
+			"timeout": 30,
+			"points": 3,
+			"rtt_ms": 10,
+			"network_conditions": {
+				"client": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				},
+				"server": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 2,
+			"name": "10ms RTT + 2% packet duplication (client)",
+			"file_size_mb": 1,
+			"timeout": 30,
+			"points": 3,
+			"rtt_ms": 10,
+			"network_conditions": {
+				"client": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": "2%",
+					"reorder": null
+				},
+				"server": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 3,
+			"name": "10ms RTT + 2% packet loss (client)",
+			"file_size_mb": 1,
+			"timeout": 30,
+			"points": 3,
+			"rtt_ms": 10,
+			"network_conditions": {
+				"client": {
+					"delay": "5ms",
+					"loss": "2%",
+					"duplicate": null,
+					"reorder": null
+				},
+				"server": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 4,
+			"name": "10ms RTT + 5% packet duplication (server)",
+			"file_size_mb": 1,
+			"timeout": 30,
+			"points": 3,
+			"rtt_ms": 10,
+			"network_conditions": {
+				"client": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				},
+				"server": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": "5%",
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 5,
+			"name": "10ms RTT + 5% packet loss (server)",
+			"file_size_mb": 1,
+			"timeout": 30,
+			"points": 2,
+			"rtt_ms": 10,
+			"network_conditions": {
+				"client": {
+					"delay": "5ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				},
+				"server": {
+					"delay": "5ms",
+					"loss": "5%",
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 6,
+			"name": "250ms RTT",
+			"file_size_mb": 1,
+			"timeout": 60,
+			"points": 2,
+			"rtt_ms": 250,
+			"network_conditions": {
+				"client": {
+					"delay": "125ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				},
+				"server": {
+					"delay": "125ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 7,
+			"name": "250ms RTT + 2% packet reordering (client)",
+			"file_size_mb": 1,
+			"timeout": 90,
+			"points": 2,
+			"rtt_ms": 250,
+			"network_conditions": {
+				"client": {
+					"delay": "125ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": "2% 50%"
+				},
+				"server": {
+					"delay": "125ms",
+					"loss": null,
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		},
+		{
+			"id": 8,
+			"name": "100ms RTT + 5% client loss + 2% server loss",
+			"file_size_mb": 5,
+			"timeout": 30,
+			"points": 2,
+			"rtt_ms": 100,
+			"network_conditions": {
+				"client": {
+					"delay": "50ms",
+					"loss": "5%",
+					"duplicate": null,
+					"reorder": null
+				},
+				"server": {
+					"delay": "50ms",
+					"loss": "2%",
+					"duplicate": null,
+					"reorder": null
+				}
+			}
+		}
+	]
+}
