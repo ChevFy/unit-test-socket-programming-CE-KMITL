@@ -96,7 +96,7 @@ def setup_network_conditions(test_num):
 def cleanup_test_files():
     """Clean up previous test files"""
     print("Cleaning up previous test files...")
-    docker_exec("urft_test", ["sh", "-c", "rm -rf /app/recived/*.bin"], capture=False)
+    docker_exec("urft_test", ["sh", "-c", "find /app/src/ -maxdepth 1 -type f ! -name '*.py' -delete"], capture=False)
     docker_exec("urft_test", ["sh", "-c", "rm -rf /app/test/*.bin"], capture=False)
 
 
@@ -266,14 +266,14 @@ def run_single_test(test_num, custom_file=None):
     print(colored("Verifying file transfer...", YELLOW))
     print(colored("=" * 70, YELLOW))
 
-    # List received files
-    success, files, _ = docker_exec("urft_server", "ls -lh /app/recived/")
+    # List received files (server saves to same directory as script: /app/src/)
+    success, files, _ = docker_exec("urft_server", "ls -lh /app/src/*.bin")
     if success and files:
         print("\nReceived files:")
         print(files)
 
-    # Calculate received MD5
-    received_path = f"/app/recived/{filename}"
+    # Calculate received MD5 (server saves to /app/src/ where the script is)
+    received_path = f"/app/src/{filename}"
     received_md5 = calculate_md5("urft_server", received_path)
 
     print(f"\nOriginal MD5: {original_md5}")
