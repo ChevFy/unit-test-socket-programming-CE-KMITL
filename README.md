@@ -18,12 +18,6 @@ For just the sake just for testing so I just slap to the AI to create this proje
 - [Development](#development)
      - [Real-Time Updates](#real-time-updates)
      - [When to Rebuild](#when-to-rebuild)
-- [Docker Reference](#docker-reference)
-     - [Container Management](#container-management)
-     - [Network Debugging](#network-debugging)
-     - [File Verification](#file-verification)
-     - [Cleanup](#cleanup)
-- [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
 
 ## Prerequisites
@@ -34,19 +28,16 @@ For just the sake just for testing so I just slap to the AI to create this proje
 ## Quick Start
 
 ```bash
-# 1. Build and start containers
-docker compose up -d
-
-# 2. Run a single test
+# 1. Run a test (starts containers automatically!)
 python scripts/run_test.py 1
 
 # Or run all tests
 python scripts/run_test.py all
 
-# 3. Edit your code in src/
+# 2. Edit your code in src/
 # Changes are live - no rebuild needed!
 
-# 4. Run tests again
+# 3. Run tests again
 python scripts/run_test.py 1
 ```
 
@@ -65,10 +56,10 @@ python scripts/run_test.py all
 ### Manual Testing
 
 ```bash
-# Server (already running in container)
-docker logs -f urft_server
+# Server (run explicitly in container)
+docker exec -it urft_server python /app/src/urft_server.py 0.0.0.0 12345
 
-# Client
+# Client (in another terminal)
 docker exec -it urft_client python /app/src/urft_client.py /app/test/testfile.bin 172.25.0.10 12345
 ```
 
@@ -154,130 +145,18 @@ Pre-configured test scenarios (edit in `config.json`):
 Only rebuild if you modify:
 
 - `Dockerfile`
-- `docker-compose.yml`
+- `docker compose.yml`
 - System dependencies
 
 **Rebuild command:**
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
-
-## Docker Reference
-
-### Container Management
-
-```bash
-# Start containers
-docker-compose up -d
-
-# Stop containers
-docker-compose down
-
-# View logs
-docker logs -f urft_server
-docker logs -f urft_client
-
-# Shell access
-docker exec -it urft_server bash
-docker exec -it urft_client bash
-```
-
-### Network Debugging
-
-```bash
-# Check network conditions
-docker exec urft_client tc qdisc show dev eth0
-
-# Clear network rules
-docker exec urft_client tc qdisc del dev eth0 root 2>/dev/null
-```
-
-### File Verification
-
-```bash
-# Check MD5 hashes
-docker exec urft_test md5sum /app/test/testfile.bin
-docker exec urft_server md5sum /app/recived/testfile.bin
-```
-
-### Cleanup
-
-```bash
-# Cross-platform cleanup
-python scripts/cleanup.py
-
-# Manual cleanup
-docker-compose down -v
-rm -rf test/* recived/*
-```
-
-## Project Structure
-
-```
-├── src/
-│   ├── urft_client.py         # UDP client (edit for live updates!)
-│   └── urft_server.py         # UDP server (edit for live updates!)
-├── scripts/
-│   ├── run_test.py            # Test runner
-│   ├── cleanup.py             # Cleanup script
-│   └── network_setup.sh       # Network conditions (in container)
-├── test/                      # Test files
-├── recived/                   # Received files
-├── Dockerfile                 # Container image
-├── docker-compose.yml         # Container orchestration
-├── config.json                # Test configuration (edit for live updates!)
-└── README.md
-```
-
-**Container Network:**
-
-- **server**: `172.25.0.10:12345`
-- **client**: `172.25.0.20`
-- **test**: `172.25.0.30`
-- Network: `172.25.0.0/16` bridge with NET_ADMIN capabilities
 
 ## Troubleshooting
 
-**Containers won't start:**
-
-```bash
-# Check logs
-docker-compose logs
-
-# Rebuild containers
-docker-compose up -d --build
-```
-
-**Network conditions not working:**
-
-```bash
-# Verify tc is installed
-docker exec urft_client tc -V
-
-# Check current rules
-docker exec urft_client tc qdisc show dev eth0
-```
-
-**File transfer fails:**
-
-```bash
-# Check server is running
-docker exec urft_server ps aux | grep python
-
-# View server logs
-docker logs -f urft_server
-
-# Restart server manually
-docker exec -it urft_server python /app/src/urft_server.py 0.0.0.0 12345
-```
-
-**Code changes not reflected:**
-
-```bash
-# Verify volume mount
-docker exec urft_server ls -la /app/src/
-
-# Check file contents
-docker exec urft_server cat /app/src/urft_server.py | head -20
-```
+If you encounter issues:
+- **Containers won't start:** Run `docker compose up -d --build`
+- **File transfer fails:** Make sure you start the server explicitly via `docker exec -it urft_server python /app/src/urft_server.py 0.0.0.0 12345` when testing manually.
+- **Code changes not reflected:** Ensure the volume mounts (`./src:/app/src`) are working correctly.
