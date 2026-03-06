@@ -25,7 +25,7 @@ def run_single_test(test_num, custom_file=None):
     test_config = next((t for t in CONFIG["tests"] if t["id"] == test_num), None)
     if not test_config:
         print(colored(f"Error: Test {test_num} not found in config.json", RED))
-        return False
+        return False, 0.0
 
     file_size = test_config["file_size_mb"]
     timeout = test_config["timeout"]
@@ -41,7 +41,7 @@ def run_single_test(test_num, custom_file=None):
 
     # Setup network conditions
     if not setup_network_conditions(test_num):
-        return False
+        return False, 0.0
 
     # Clean up previous test
     cleanup_test_files()
@@ -51,12 +51,12 @@ def run_single_test(test_num, custom_file=None):
         filename = use_custom_file(custom_file)
         if not filename:
             print(colored("✗ Failed to use custom file", RED))
-            return False
+            return False, 0.0
     else:
         filename = create_test_file(file_size)
         if not filename:
             print(colored("✗ Failed to create test file", RED))
-            return False
+            return False, 0.0
 
     # Cleanup server and client
     cleanup_server()
@@ -147,7 +147,7 @@ def run_single_test(test_num, custom_file=None):
 
     except Exception as e:
         print(colored(f"Error running client: {e}", RED))
-        return False
+        return False, 0.0
 
     # Verify file transfer
     print(colored("\n" + "=" * 70, YELLOW))
@@ -233,13 +233,65 @@ def run_single_test(test_num, custom_file=None):
         print(colored("=" * 70, YELLOW))
         return False, elapsed_time
 
+def print_congratulations():
+    print("　　　　　　　　　　　　　　。・　　ﾟ　　★　。・　ﾟ　☆。 ・　ﾟ")
+    print("　　　.へ￣＼　　　　　　｡･ﾟ・。・・。・　　。・・。 。・。 ・　ﾟ")
+    print("　　　　＿| 二)＿　 ☆　   　　★・。ﾟ・　☆・　ﾟ　・　ﾟ。 ・　ﾟ")
+    print("　　　　　(=ﾟωﾟ)っ／　　　　　　・。ﾟ　・　・。 ・　ﾟ　・　ﾟ。 ・　ﾟ")
+    print("　   三》━/レθθ━　　 ☆ C o n g r a t u l a t i o n s ! ! ! ☆")
+    print("　　　　　　　　 　　　　　　　☆　ﾟ　・　★ﾟ・　ﾟ　・　ﾟ　☆　ｷﾗ")
+    print("\nSource: https://www.reddit.com/r/EmoticonHub/comments/1nvw9lu/congratulations_ascii_art/")
+
+def print_test_summary_table(test_times, passed, failed, total_tests):
+    """Print the final test summary as a formatted table"""
+    table_width = 140
+    print(f"\n{colored('='*table_width, YELLOW)}")
+    print(colored(f"{'Test Summary':^{table_width}}", YELLOW))
+    print(f"{colored('='*table_width, YELLOW)}")
+    
+    header = f"{'ID':^4} | {'Status':^6} | {'Time':^7} | {'Size':^6} | {'Client Net':^30} | {'Server Net':^30} | {'Description'}"
+    print(header)
+    print("-" * table_width)
+
+    for test_num, success, elapsed in test_times:
+        status_color = GREEN if success else RED
+        status_text = "PASS" if success else "FAIL"
+        
+        test_config = next((t for t in CONFIG["tests"] if t["id"] == test_num), {})
+        size = f"{test_config.get('file_size_mb', '-')}MB"
+        desc = test_config.get('name', '-')
+        
+        client_conds = test_config.get("network_conditions", {}).get("client", {})
+        client_params = [f"{k}={v}" for k, v in client_conds.items() if v]
+        client_net = ", ".join(client_params) if client_params else "Normal"
+        
+        server_conds = test_config.get("network_conditions", {}).get("server", {})
+        server_params = [f"{k}={v}" for k, v in server_conds.items() if v]
+        server_net = ", ".join(server_params) if server_params else "Normal"
+        
+        status_formatted = colored(f"{status_text:^6}", status_color)
+        
+        row_prefix = f"{test_num:^4} | "
+        row_suffix = f" | {elapsed:>6.2f}s | {size[:6]:>6} | {client_net[:30]:^30} | {server_net[:30]:^30} | {desc[:40]}"
+        print(row_prefix + status_formatted + row_suffix)
+
+    print(f"{colored('-'*table_width, YELLOW)}")
+    
+    summary_line = (colored(f"Passed: {passed}", GREEN) + " | " + 
+                    colored(f"Failed: {failed}", RED) + f" | Total: {total_tests}")
+    print(summary_line)
+    print(f"{colored('='*table_width, YELLOW)}\n")
+
 def run_all_tests():
-    """Run all 8 test cases"""
+    """Run all test cases from config.json"""
     passed = 0
     failed = 0
     test_times = []
 
-    for test_num in range(1, 9):
+    test_ids = [t["id"] for t in CONFIG["tests"]]
+    total_tests = len(test_ids)
+
+    for test_num in test_ids:
         success, elapsed = run_single_test(test_num)
         test_times.append((test_num, success, elapsed))
 
@@ -250,20 +302,11 @@ def run_all_tests():
         time.sleep(1)
 
     # Print summary
-    print(f"\n{colored('='*70, YELLOW)}")
-    print(colored("Test Summary", YELLOW))
-    print(f"{colored('='*70, YELLOW)}")
+    print_test_summary_table(test_times, passed, failed, total_tests)
 
-    for test_num, success, elapsed in test_times:
-        status_color = GREEN if success else RED
-        status_text = "PASS" if success else "FAIL"
-        print(colored(f"Test {test_num} [{status_text}]: {elapsed:.2f}s", status_color))
-
-    print(f"{colored('-'*70, YELLOW)}")
-    print(colored(f"Passed: {passed}", GREEN))
-    print(colored(f"Failed: {failed}", RED))
-    print(f"Total:  8")
-    print(f"{colored('='*70, YELLOW)}\n")
+    if failed == 0:
+        print_congratulations()
+        print()
 
     return failed == 0
 
