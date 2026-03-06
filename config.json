@@ -14,7 +14,6 @@
 			"name": "Normal conditions with 10ms RTT",
 			"file_size_mb": 1,
 			"timeout": 30,
-			"points": 3,
 			"rtt_ms": 10,
 			"network_conditions": {
 				"client": {
@@ -36,7 +35,6 @@
 			"name": "10ms RTT + 2% packet duplication (client)",
 			"file_size_mb": 1,
 			"timeout": 30,
-			"points": 3,
 			"rtt_ms": 10,
 			"network_conditions": {
 				"client": {
@@ -58,7 +56,6 @@
 			"name": "10ms RTT + 2% packet loss (client)",
 			"file_size_mb": 1,
 			"timeout": 30,
-			"points": 3,
 			"rtt_ms": 10,
 			"network_conditions": {
 				"client": {
@@ -80,7 +77,6 @@
 			"name": "10ms RTT + 5% packet duplication (server)",
 			"file_size_mb": 1,
 			"timeout": 30,
-			"points": 3,
 			"rtt_ms": 10,
 			"network_conditions": {
 				"client": {
@@ -102,7 +98,6 @@
 			"name": "10ms RTT + 5% packet loss (server)",
 			"file_size_mb": 1,
 			"timeout": 30,
-			"points": 2,
 			"rtt_ms": 10,
 			"network_conditions": {
 				"client": {
@@ -124,7 +119,6 @@
 			"name": "250ms RTT",
 			"file_size_mb": 1,
 			"timeout": 60,
-			"points": 2,
 			"rtt_ms": 250,
 			"network_conditions": {
 				"client": {
@@ -146,14 +140,13 @@
 			"name": "250ms RTT + 2% packet reordering (client)",
 			"file_size_mb": 1,
 			"timeout": 90,
-			"points": 2,
 			"rtt_ms": 250,
 			"network_conditions": {
 				"client": {
 					"delay": "125ms",
 					"loss": null,
 					"duplicate": null,
-					"reorder": "2% 50%"
+					"reorder": "2%"
 				},
 				"server": {
 					"delay": "125ms",
@@ -168,7 +161,6 @@
 			"name": "100ms RTT + 5% client loss + 2% server loss",
 			"file_size_mb": 5,
 			"timeout": 30,
-			"points": 2,
 			"rtt_ms": 100,
 			"network_conditions": {
 				"client": {
