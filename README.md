@@ -2,6 +2,8 @@
 
 Complete Docker testing environment with network simulation and **real-time code updates** (no rebuild needed!).
 
+For just the sake just for testing so I just slap to the AI to create this project for test. So expect bugs you can open an issue if you find any. I will try to fix it as soon as possible.
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
@@ -136,6 +138,7 @@ Pre-configured test scenarios (edit in `config.json`):
      - `config.json`
 
 3. **Test immediately:**
+
      ```bash
      python scripts/run_test.py 1  # Changes already applied!
      ```
