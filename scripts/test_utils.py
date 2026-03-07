@@ -1,4 +1,3 @@
-import sys
 import subprocess
 import time
 import hashlib
@@ -16,9 +15,11 @@ CONFIG_PATH = Path(__file__).parent.parent / "config.json"
 with open(CONFIG_PATH, "r") as f:
     CONFIG = json.load(f)
 
+
 def colored(text, color):
     """Return colored text"""
     return f"{color}{text}{NC}"
+
 
 def read_stream(stream, queue_obj, prefix, color):
     """Read lines from stream in background thread"""
@@ -30,6 +31,7 @@ def read_stream(stream, queue_obj, prefix, color):
         pass
     finally:
         queue_obj.put(None)  # Signal EOF
+
 
 def run_command(cmd, capture=True, check=False):
     """Run a shell command"""
@@ -45,15 +47,18 @@ def run_command(cmd, capture=True, check=False):
     except Exception as e:
         return False, "", str(e)
 
+
 def docker_exec(container, command, capture=True):
     """Execute command in Docker container"""
     cmd = ["docker", "exec", container] + (command if isinstance(command, list) else command.split())
     return run_command(cmd, capture=capture)
 
+
 def reset_network_conditions():
     """Tear down all tc rules on both containers (returns network to clean state)"""
     for container_name in ["urft_server", "urft_client"]:
-        docker_exec(container_name, ["tc", "qdisc", "del", "dev", "eth0", "root"], capture=False)
+        docker_exec(container_name, ["tc", "qdisc", "del", "dev", "eth0", "root"], capture=True)
+
 
 def setup_network_conditions(test_num):
     """Apply network conditions from config"""
@@ -93,11 +98,13 @@ def setup_network_conditions(test_num):
 
     return True
 
+
 def cleanup_test_files():
     """Clean up previous test files"""
     print("Cleaning up previous test files...")
     docker_exec("urft_client", ["sh", "-c", "rm -f /app/test/test_file_*mb.bin"], capture=False)
     docker_exec("urft_server", ["sh", "-c", "rm -rf /app/recived/*"], capture=False)
+
 
 def create_test_file(size_mb):
     """Create test file in container"""
@@ -115,6 +122,7 @@ def create_test_file(size_mb):
     if success:
         print(f"Created: {stdout}")
     return filename if success else None
+
 
 def use_custom_file(host_filepath):
     """Copy custom file from host to container /app/tmp/"""
@@ -142,6 +150,7 @@ def use_custom_file(host_filepath):
     print(f"Copied to: /app/test/{filename}")
     return filename
 
+
 def calculate_md5(container, filepath):
     """Calculate MD5 hash of a file in container"""
     cmd = f"md5sum {filepath}"
@@ -151,6 +160,7 @@ def calculate_md5(container, filepath):
         return output.split()[0]
     return None
 
+
 def calculate_md5_local(filepath):
     """Calculate MD5 hash of a file on host filesystem"""
     try:
@@ -158,6 +168,7 @@ def calculate_md5_local(filepath):
             return hashlib.md5(f.read()).hexdigest()
     except:
         return None
+
 
 def cleanup_server():
     """Kill any lingering server processes"""
@@ -174,6 +185,7 @@ for pid in os.listdir('/proc'):
 """
     docker_exec("urft_server", ["python", "-c", python_cmd], capture=False)
 
+
 def cleanup_client():
     """Kill any lingering client processes"""
     python_cmd = """
@@ -188,6 +200,7 @@ for pid in os.listdir('/proc'):
             pass
 """
     docker_exec("urft_client", ["python", "-c", python_cmd], capture=False)
+
 
 def start_containers():
     """Start Docker containers"""
