@@ -50,8 +50,10 @@ For just the sake just for testing so I just slap to the AI to create this proje
 
 ## Quick Start
 
+### Test with config.json scenarios
+
 ```bash
-# 1. Run a test (starts containers automatically!)
+# 1. Run a test of scenario id 1 in config.json (starts containers automatically!)
 python scripts/run_test.py 1
 
 # Or run all tests
@@ -62,6 +64,16 @@ python scripts/run_test.py all
 
 # 3. Run tests again
 python scripts/run_test.py 1
+```
+
+### Test with custom files
+
+```bash
+# Test with hi.txt with scenario id 1 in config.json
+python scripts/run_test.py 1 --file test/hi.txt
+
+# Test with keqing.png with scenario id 1 in config.json
+python scripts/run_test.py 1 --file test/keqing.png
 ```
 
 ## Usage
