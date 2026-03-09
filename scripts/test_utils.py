@@ -100,7 +100,8 @@ def setup_network_conditions(test_num):
             for line in stderr.splitlines():
                 print(colored(f"  [{container_name} ERR] {line}", RED))
         if not success:
-            print(colored(f"Warning: Failed to setup network for {container_name}", RED))
+            print(colored(f"Error: Failed to setup network for {container_name}", RED))
+            return False
 
     return True
 

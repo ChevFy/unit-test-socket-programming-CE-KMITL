@@ -52,6 +52,12 @@ For just the sake just for testing so I just slap to the AI to create this proje
 
 ## Quick Start
 
+### Run Docker Containers (First Time Only)
+
+```bash
+docker compose up -d
+```
+
 ### Test with config.json scenarios
 
 ```bash
