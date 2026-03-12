@@ -40,26 +40,6 @@ services:
           tty: true
           command: sleep infinity
 
-     test:
-          build: .
-          container_name: urft_test
-          hostname: test
-          networks:
-               urft_network:
-                    ipv4_address: 172.25.0.30
-          cap_add:
-             - NET_ADMIN
-          depends_on:
-             - server
-          volumes:
-             - ./src:/app/src
-             - ./config.json:/app/config.json
-             - ./received:/app/received
-             - ./test:/app/test
-             - .:/app/workspace
-          stdin_open: true
-          tty: true
-          command: sleep infinity
 
 networks:
      urft_network:
