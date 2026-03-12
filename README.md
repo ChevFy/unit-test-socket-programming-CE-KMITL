@@ -4,6 +4,8 @@ Complete Docker testing environment with network simulation and **real-time code
 
 For just the sake just for testing so I just slap to the AI to create this project for test. So expect bugs you can open an issue if you find any. I will try to fix it as soon as possible.
 
+CREDIT : Azpropoze
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
