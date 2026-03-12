@@ -90,6 +90,12 @@ python scripts/run_test.py 1 --file test/hi.txt
 python scripts/run_test.py 1 --file test/keqing.png
 ```
 
+### Secret test case
+
+```bash
+python scripts/run_test.py 9
+```
+
 ## Usage
 
 ### Running Tests

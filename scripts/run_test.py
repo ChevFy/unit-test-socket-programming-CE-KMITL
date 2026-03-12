@@ -331,7 +331,7 @@ def print_test_summary_table(all_results):
 def run_all_tests(times=1):
     """Run all test cases from config.json"""
     all_results = {}
-    test_ids = [t["id"] for t in CONFIG["tests"]]
+    test_ids = [t["id"] for t in CONFIG["tests"] if t.get("required", True)]
 
     for test_num in test_ids:
         runs = []
