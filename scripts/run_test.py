@@ -18,8 +18,34 @@ import time
 from pathlib import Path
 import threading
 import queue
+import logging
+from datetime import datetime
 from test_utils import *
 from test_utils import reset_network_conditions
+
+# Failure log - records [CLIENT]/[SERVER] output when test fails
+FAIL_LOG_PATH = Path(__file__).parent.parent / "logs" / "test_failures.log"
+FAIL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+_fail_logger = logging.getLogger("test_failures")
+_fail_logger.setLevel(logging.INFO)
+_fail_handler = logging.FileHandler(FAIL_LOG_PATH, mode="a", encoding="utf-8")
+_fail_handler.setFormatter(logging.Formatter("%(message)s"))
+_fail_logger.addHandler(_fail_handler)
+_fail_logger.propagate = False
+
+
+def log_failure(test_num, reason, run_output):
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    _fail_logger.info("")
+    _fail_logger.info("=" * 80)
+    _fail_logger.info(f"[FAILED] {ts} | Test {test_num} | {reason}")
+    _fail_logger.info("=" * 80)
+    if run_output:
+        for prefix, line in run_output:
+            _fail_logger.info(f"{prefix}{line}")
+    else:
+        _fail_logger.info("  (no client/server output captured)")
+    _fail_logger.info("-" * 80)
 
 
 def run_single_test(test_num, custom_file=None):
@@ -80,6 +106,7 @@ def run_single_test(test_num, custom_file=None):
     client_cmd = ["python", "-u", "/app/src/urft_client.py", original_path, CONFIG["docker"]["server_ip"], str(CONFIG["server"]["port"])]
 
     # Start client with output visible
+    run_output = []
     try:
         # Start server process in background
         server_proc = subprocess.Popen(["docker", "exec", "urft_server"] + server_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
@@ -96,7 +123,7 @@ def run_single_test(test_num, custom_file=None):
         server_thread.start()
         client_thread.start()
 
-        # Read both outputs in real-time
+        # Read both outputs in real-time (capture [CLIENT]/[SERVER] for failure log)
         start_time = time.time()
         client_done = False
         server_done = False
@@ -111,6 +138,7 @@ def run_single_test(test_num, custom_file=None):
                 if elapsed_time > timeout:
                     client_proc.kill()
                     print(colored("\n⚠ Transfer timed out", YELLOW))
+                    log_failure(test_num, "Transfer timed out", run_output)
                     break
 
                 # Check if client finished
@@ -126,6 +154,7 @@ def run_single_test(test_num, custom_file=None):
                             break
                     else:
                         prefix, color, line = item
+                        run_output.append((prefix, line))
                         print(colored(prefix, color) + line)
                         if "File transfer completed." in line and prefix == "[SERVER] ":
                             server_done = True
@@ -152,6 +181,7 @@ def run_single_test(test_num, custom_file=None):
 
     except Exception as e:
         print(colored(f"Error running client: {e}", RED))
+        log_failure(test_num, f"Exception: {e}", run_output)
         cleanup_server()
         cleanup_client()
         reset_network_conditions()
@@ -200,6 +230,7 @@ def run_single_test(test_num, custom_file=None):
     else:
         if not received_md5:
             print(colored(f"✗ Test {test_num} FAILED - File not received", RED))
+            log_failure(test_num, "File not received", run_output)
         else:
             print(colored(f"✗ Test {test_num} FAILED - File corrupted (MD5 mismatch)\n", RED))
             print(colored("Detailed Byte Analysis:", YELLOW))
@@ -225,6 +256,7 @@ def run_single_test(test_num, custom_file=None):
                             break
             except Exception as e:
                 print(f"  Could not run detailed analysis: {e}")
+            log_failure(test_num, "File corrupted (MD5 mismatch)", run_output)
 
         print(colored("-" * 70, YELLOW))
         print(colored("Failed Test Configuration:", YELLOW))
@@ -238,6 +270,7 @@ def run_single_test(test_num, custom_file=None):
             params = [f"{k}={v}" for k, v in conds.items() if v]
             print(f"  {role.capitalize()}    : {', '.join(params) if params else 'Normal'}")
 
+        print(colored(f"  Log: {FAIL_LOG_PATH}", GRAY))
         print(colored("=" * 70, YELLOW))
         return False, elapsed_time
 
