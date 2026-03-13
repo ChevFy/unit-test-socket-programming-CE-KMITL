@@ -34,6 +34,7 @@ _fail_logger.addHandler(_fail_handler)
 _fail_logger.propagate = False
 
 
+#log
 def log_failure(test_num, reason, run_output):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     _fail_logger.info("")
